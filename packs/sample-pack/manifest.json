@@ -1,0 +1,16 @@
+{
+  "id": "pack-g6-math",
+  "grade": 6,
+  "subject": "Math",
+  "lessons": [
+    {
+      "id": "g6-math-fractions-01",
+      "title": "Fractions Basics",
+      "game": "concept-builder",
+      "items": [
+        { "question": "1/2 of 8 = ?", "answer": "4" },
+        { "question": "Simplify 2/4", "answer": "1/2" }
+      ]
+    }
+  ]
+}
