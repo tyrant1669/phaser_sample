@@ -3,44 +3,61 @@ const config = {
   width: 360,
   height: 640,
   parent: "game",
-  scene: {
-    preload,
-    create,
-    update
-  }
+  backgroundColor: "#87ceeb",
+  scene: { preload, create }
 };
 
+let questionText, answerText, feedbackText;
 let score = 0;
 let scoreText;
 
+const questions = [
+  { q: "1/2 of 8 = ?", options: ["2", "4", "6"], answer: "4" },
+  { q: "Simplify 2/4", options: ["2/4", "1/2", "3/4"], answer: "1/2" }
+];
+let current = 0;
+
 function preload() {
-  this.load.image("tile", "https://labs.phaser.io/assets/sprites/block.png");
+  this.load.image("button", "https://labs.phaser.io/assets/sprites/block.png");
 }
 
 function create() {
-  scoreText = this.add.text(10, 10, "Score: 0", { fontSize: "20px", fill: "#000" });
+  // Question
+  questionText = this.add.text(20, 40, questions[current].q, { fontSize: "20px", fill: "#000" });
 
-  const tile = this.add.image(100, 200, "tile").setInteractive();
-  tile.setScale(0.5);
+  // Options as clickable blocks
+  questions[current].options.forEach((opt, i) => {
+    const btn = this.add.image(180, 150 + i * 100, "button").setInteractive();
+    btn.setScale(1.5);
 
-  tile.on("pointerdown", () => {
-    score += 10;
-    scoreText.setText("Score: " + score);
+    const txt = this.add.text(170, 140 + i * 100, opt, { fontSize: "20px", fill: "#fff" });
 
-    // Example event log
-    const evt = {
-      id: crypto.randomUUID(),
-      t: Date.now(),
-      type: "item_answered",
-      payload: { correct: true, lesson: "g6-math-fractions-01" }
-    };
-    console.log("Event logged:", evt);
-
-    // Save locally
-    localStorage.setItem("lastEvent", JSON.stringify(evt));
+    btn.on("pointerdown", () => {
+      checkAnswer.call(this, opt);
+    });
   });
+
+  scoreText = this.add.text(20, 580, "Score: 0", { fontSize: "20px", fill: "#000" });
+  feedbackText = this.add.text(20, 540, "", { fontSize: "18px", fill: "#000" });
 }
 
-function update() {}
+function checkAnswer(selected) {
+  if (selected === questions[current].answer) {
+    feedbackText.setText("✅ Correct!");
+    score += 10;
+  } else {
+    feedbackText.setText("❌ Try again!");
+  }
+  scoreText.setText("Score: " + score);
 
+  // Log event (console + localStorage)
+  const evt = {
+    id: crypto.randomUUID(),
+    t: Date.now(),
+    type: "item_answered",
+    payload: { q: questions[current].q, selected, correct: selected === questions[current].answer }
+  };
+  console.log("Event:", evt);
+  localStorage.setItem("lastEvent", JSON.stringify(evt));
+}
 new Phaser.Game(config);
